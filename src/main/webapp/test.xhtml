@@ -3,7 +3,8 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:h="http://java.sun.com/jsf/html">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:pe="http://primefaces.org/ui/extensions">
 
     <h:head>
         <title>PrimeFaces Test</title>
@@ -12,5 +13,90 @@
 
         <h1>#{testView.testString}</h1>
 
+        <h:form id="form">
+
+            <h3>Sheet Outside of ui:repeat (Day 0 data)</h3>
+            <pe:sheet id="testSheet"
+                      widgetVar="sheetWidget"
+                      value="#{testView.testMap.get(testView.testList.get(0))}"
+                      var="row"
+                      height="150"
+                      rowKey="#{row.id}">
+
+                <p:ajax event="change"
+                        listener="#{testView.cellChangeEvent}"
+                        update="changedValues"/>
+
+                <pe:sheetcolumn headerText="Data [String]"
+                                value="#{row.dataString}"/>
+
+                <pe:sheetcolumn headerText="Data [Integer]"
+                                value="#{row.dataInteger}"/>
+            </pe:sheet>
+
+
+
+            <!-- Test whether ajax update is not working in general, or just in pe:sheet-->
+            <p:commandButton value="Test AJAX update"
+                             action="#{testView.testAjax()}"
+                             update="changedValues"/>
+
+
+
+            <h3>Sheets Inside ui:repeat</h3>
+            <p:outputPanel id="changedValues">
+                <h:panelGroup >
+                    <p:panel id="testAjax">
+                        <h:outputText value="AJAX update: " style="font-weight: bold; color: dodgerblue" />
+                        <h:outputText value="#{testView.testAjaxValue}" /><br/><br/>
+                    </p:panel>
+
+                    <p:panel id="changedValue0">
+                        <h:outputText value="Day 0 Row 1 'Data [String]' value: " style="font-weight: bold; color: dodgerblue"/>
+                        <h:outputText value="#{testView.testMap.get(testView.testList.get(0)).get(0).dataString}" /><br/><br/>
+                    </p:panel>
+
+                    <p:panel id="changedValue1">
+                        <h:outputText value="Day 1 Row 1 'Data [String]' value: " style="font-weight: bold; color: dodgerblue"/>
+                        <h:outputText value="#{testView.testMap.get(testView.testList.get(1)).get(0).dataString}" /><br/><br/>
+                    </p:panel>
+
+                    <p:panel id="changedValue2">
+                        <h:outputText value="Day 2 Row 1 'Data [String]' value: " style="font-weight: bold; color: dodgerblue"/>
+                        <h:outputText value="#{testView.testMap.get(testView.testList.get(2)).get(0).dataString}" /><br/><br/>
+                    </p:panel>
+                </h:panelGroup>
+            </p:outputPanel><br/><br/>
+
+
+
+
+            <ui:repeat value="#{testView.testList}" var="day">
+                <h:panelGroup id="sheetPanel">
+
+                    <h:outputText value="DAY #{day}"/>
+
+                    <pe:sheet id="sheet"
+                              widgetVar="sheetWidget"
+                              value="#{testView.testMap.get(day)}"
+                              var="row"
+                              height="150"
+                              rowKey="#{row.id}">
+
+                        <p:ajax event="change"
+                                listener="#{testView.cellChangeEvent}"
+                                update="@form:changedValues"/>
+
+                        <pe:sheetcolumn headerText="Data [String]"
+                                        value="#{row.dataString}"/>
+
+                        <pe:sheetcolumn headerText="Data [Integer]"
+                                        value="#{row.dataInteger}"/>
+                    </pe:sheet>
+                </h:panelGroup>
+            </ui:repeat>
+
+
+        </h:form>
     </h:body>
 </html>
